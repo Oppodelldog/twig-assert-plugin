@@ -1,0 +1,43 @@
+<idea-plugin>
+    <id>mit.oppodelldog.twigassert</id>
+    <name>This supports twig-assert language extension</name>
+    <version>1.0</version>
+    <vendor email="odog@netcologne.de" url="http://www.github.com/Oppodelldog">Oppodelldog</vendor>
+
+    <description><![CDATA[
+      Twig language extension twig-assert allows to assert a view variable is of a defined type.<br>
+      This plugin supports the language extention by the following features:
+      <ul>
+      <li>PHP Class automcompletion inside assert block</li>
+      </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      Currently there's heave development and proof of concept
+    ]]>
+    </change-notes>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="173.0"/>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+
+    -->
+
+    <depends>com.jetbrains.php</depends>
+    <depends>com.jetbrains.twig</depends>
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <completion.contributor language="Twig"
+                                implementationClass="twig.assertion.completion.TwigCompletionContributor"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+
+</idea-plugin>
