@@ -18,5 +18,15 @@ public class ElementNavigator {
 
         return prev;
     }
+
+    public PsiElement next(int i) {
+        PsiElement next = this.e;
+
+        for (int j = 0; j < i; j++) {
+            next = next.getNextSibling();
+        }
+
+        return next;
+    }
 }
 
