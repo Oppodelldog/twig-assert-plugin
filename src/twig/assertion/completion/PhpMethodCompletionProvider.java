@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import twig.assertion.util.ElementNavigator;
 import twig.assertion.util.FindElements;
 
-public class PhpMethodCompletionProvider extends CompletionProvider<CompletionParameters> {
+class PhpMethodCompletionProvider extends CompletionProvider<CompletionParameters> {
     @Override
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext processingContext, @NotNull CompletionResultSet completionResultSet) {
         PsiElement currElement = parameters.getPosition().getOriginalElement();
@@ -23,7 +23,6 @@ public class PhpMethodCompletionProvider extends CompletionProvider<CompletionPa
             String phpClassname = FindElements.findAssertType(parameters.getOriginalFile(), variableName);
             PhpIndex phpIndex = PhpIndex.getInstance(currElement.getProject());
             PlainPrefixMatcher pm = new PlainPrefixMatcher(phpClassname.replace("\\\\", "\\"));
-
             PhpCompletionUtil.getAllClasses(pm, phpIndex).forEach(phpClass -> completionResultSet.addAllElements(PhpVariantsUtil.getLookupItems(phpClass.getMethods(), false, null)));
         }
     }
