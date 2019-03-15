@@ -2,7 +2,6 @@ package twig.assertion.completion;
 
 import com.intellij.codeInsight.completion.*;
 import com.intellij.codeInsight.lookup.LookupElement;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
@@ -14,6 +13,7 @@ import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.twig.TwigTokenTypes;
 import org.jetbrains.annotations.NotNull;
 import twig.assertion.util.ElementNavigator;
+import twig.assertion.util.Fqn;
 
 class PhpFQCNCompletionProvider extends CompletionProvider<CompletionParameters> {
 
@@ -50,7 +50,7 @@ class PhpFQCNCompletionProvider extends CompletionProvider<CompletionParameters>
             if (object instanceof PhpClass) {
                 try {
                     String namespaceFQN = ((PhpClass) object).getNamespaceName();
-                    namespaceFQN = StringUtil.replace(namespaceFQN, "\\", "\\\\");
+                    namespaceFQN = Fqn.toTwigString(namespaceFQN);
                     context.getDocument().insertString(context.getStartOffset(), "\"" + namespaceFQN);
                 } finally {
                     PsiDocumentManager.getInstance(context.getProject()).commitDocument(context.getDocument());

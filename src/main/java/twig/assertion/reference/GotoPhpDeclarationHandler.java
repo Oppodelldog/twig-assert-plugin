@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import twig.assertion.completion.TwigAssertCompletionProvider;
 import twig.assertion.util.ElementNavigator;
 import twig.assertion.util.FindElements;
+import twig.assertion.util.Fqn;
 
 import java.util.ArrayList;
 
@@ -27,17 +28,17 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
             return null;
         }
 
-        if (isCursorOnObjectAttribute(psiElement)) {
-            return findPhpFieldsOrMethods(psiElement);
+        if (isCaretOnObjectMember(psiElement)) {
+            return findClassMembers(psiElement);
         } else if (isCursorOnFQCN(psiElement)) {
-            return findPhpClass(psiElement);
+            return findClass(psiElement);
         }
 
         return null;
     }
 
-    private PsiElement[] findPhpClass(PsiElement psiElement) {
-        String fullQualifiedClassName = psiElement.getText().replace("\\\\", "\\");
+    private PsiElement[] findClass(PsiElement psiElement) {
+        String fullQualifiedClassName = Fqn.fromTwigString(psiElement.getText());
         PhpIndex phpIndex = PhpIndex.getInstance(psiElement.getProject());
 
         return phpIndex.getClassesByFQN(fullQualifiedClassName).toArray(new PsiElement[0]);
@@ -52,14 +53,12 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
                 e.prev(5).getNode().getText().equals(TwigAssertCompletionProvider.ASSERT_TAG_NAME);
     }
 
-    private PsiElement[] findPhpFieldsOrMethods(PsiElement psiElement) {
-        String phpClassname = FindElements.findAssertType(psiElement.getContainingFile(), psiElement);
+    private PsiElement[] findClassMembers(PsiElement psiElement) {
+        PlainPrefixMatcher pm = getPlainPrefixMatcherFromAssertedType(psiElement);
         String cursorElementName = psiElement.getText();
-        PhpIndex phpIndex = PhpIndex.getInstance(psiElement.getProject());
-        PlainPrefixMatcher pm = new PlainPrefixMatcher(phpClassname.replace("\\\\", "\\"));
 
         ArrayList<PsiElement> foundElements = new ArrayList<>();
-
+        PhpIndex phpIndex = PhpIndex.getInstance(psiElement.getProject());
         for (PhpClass phpClass : PhpCompletionUtil.getAllClasses(pm, phpIndex)) {
             phpClass.getMethods().stream().filter(method -> method.getName().equals(cursorElementName)).findFirst().ifPresent(foundElements::add);
             phpClass.getFields().stream().filter(field -> field.getName().equals(cursorElementName)).findFirst().ifPresent(foundElements::add);
@@ -68,7 +67,15 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
         return foundElements.toArray(new PsiElement[0]);
     }
 
-    private boolean isCursorOnObjectAttribute(PsiElement psiElement) {
+    @NotNull
+    private PlainPrefixMatcher getPlainPrefixMatcherFromAssertedType(PsiElement psiElement) {
+        String classNameTwigFormatted = FindElements.findAssertType(psiElement.getContainingFile(), psiElement);
+        String className = Fqn.fromTwigString(classNameTwigFormatted);
+
+        return new PlainPrefixMatcher(className);
+    }
+
+    private boolean isCaretOnObjectMember(PsiElement psiElement) {
         return psiElement.getNode() != null
                 && psiElement.getNode().getElementType() == TwigTokenTypes.IDENTIFIER
                 && psiElement.getPrevSibling() != null
