@@ -1,11 +1,12 @@
 package twig.assertion.util;
 
 import com.intellij.psi.PsiElement;
+import org.jetbrains.annotations.NotNull;
 
 public class ElementNavigator {
     private final PsiElement e;
 
-    public ElementNavigator(PsiElement e) {
+    public ElementNavigator(@NotNull PsiElement e) {
         this.e = e;
     }
 

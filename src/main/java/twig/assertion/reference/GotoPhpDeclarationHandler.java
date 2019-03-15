@@ -23,6 +23,10 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
     @Nullable
     @Override
     public PsiElement[] getGotoDeclarationTargets(PsiElement psiElement, int offset, Editor editor) {
+        if (psiElement == null) {
+            return null;
+        }
+
         if (isCursorOnObjectAttribute(psiElement)) {
             return findPhpFieldsOrMethods(psiElement);
         } else if (isCursorOnFQCN(psiElement)) {
@@ -39,7 +43,7 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
         return phpIndex.getClassesByFQN(fullQualifiedClassName).toArray(new PsiElement[0]);
     }
 
-    private boolean isCursorOnFQCN(@NotNull PsiElement psiElement) {
+    private boolean isCursorOnFQCN(PsiElement psiElement) {
         ElementNavigator e = new ElementNavigator(psiElement);
         return e.prev(1).getNode().getElementType() == TwigTokenTypes.DOUBLE_QUOTE &&
                 e.prev(2) instanceof PsiWhiteSpace &&
@@ -48,10 +52,8 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
                 e.prev(5).getNode().getText().equals(TwigAssertCompletionProvider.ASSERT_TAG_NAME);
     }
 
-    @NotNull
     private PsiElement[] findPhpFieldsOrMethods(PsiElement psiElement) {
-        String variableName = new ElementNavigator(psiElement).prev(2).getText();
-        String phpClassname = FindElements.findAssertType(psiElement.getContainingFile(), variableName);
+        String phpClassname = FindElements.findAssertType(psiElement.getContainingFile(), psiElement);
         String cursorElementName = psiElement.getText();
         PhpIndex phpIndex = PhpIndex.getInstance(psiElement.getProject());
         PlainPrefixMatcher pm = new PlainPrefixMatcher(phpClassname.replace("\\\\", "\\"));
@@ -66,7 +68,7 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
         return foundElements.toArray(new PsiElement[0]);
     }
 
-    private boolean isCursorOnObjectAttribute(@NotNull PsiElement psiElement) {
+    private boolean isCursorOnObjectAttribute(PsiElement psiElement) {
         return psiElement.getNode() != null
                 && psiElement.getNode().getElementType() == TwigTokenTypes.IDENTIFIER
                 && psiElement.getPrevSibling() != null
@@ -78,5 +80,4 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
     public String getActionText(@NotNull DataContext context) {
         return null;
     }
-
 }

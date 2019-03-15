@@ -24,6 +24,6 @@ abstract class AbstractPhpClassMemberCompletionProvider extends CompletionProvid
             return PhpCompletionUtil.getAllClasses(pm, phpIndex);
         }
 
-        return new ArrayList<PhpClass>();
+        return new ArrayList<>();
     }
 }
