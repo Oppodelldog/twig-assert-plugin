@@ -24,7 +24,8 @@ public class FindElements {
         return false;
     };
 
-    public static String findAssertType(PsiFile file, String variableName) {
+    public static String findAssertType(PsiFile file, PsiElement currElement) {
+        String variableName = new ElementNavigator(currElement).prev(2).getText();
         ArrayList<PsiElement> elements = findElementsInFile(file);
         for (PsiElement element :
                 elements) {
