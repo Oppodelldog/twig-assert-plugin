@@ -6,7 +6,7 @@
 
     <description><![CDATA[
       Twig language extension twig-assert allows to assert a view variable is of a defined type.<br>
-      This plugin supports the language extention by the following features:
+      This plugin supports the language extension by the following features:
       <ul>
       <li>PHP Class automcompletion inside assert block</li>
       </ul>

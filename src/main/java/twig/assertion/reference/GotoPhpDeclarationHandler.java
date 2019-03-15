@@ -23,7 +23,6 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
     @Nullable
     @Override
     public PsiElement[] getGotoDeclarationTargets(PsiElement psiElement, int offset, Editor editor) {
-
         if (isCursorOnObjectAttribute(psiElement)) {
             return findPhpFieldsOrMethods(psiElement);
         } else if (isCursorOnFQCN(psiElement)) {
