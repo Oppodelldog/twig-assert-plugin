@@ -6,22 +6,22 @@ import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import com.jetbrains.twig.TwigFileType;
 import org.junit.Assert;
 import twig.assertion.reference.GotoPhpDeclarationHandler;
-import twig.assertion.tests.util.GotoHandlerAssertion;
-import twig.assertion.tests.util.PsiElementFromFixtureFile;
+import twig.assertion.tests.util.GotoDeclarationHandlerAssertion;
+import twig.assertion.tests.util.PsiElementFromFixtureFileLoader;
 
 public class GotoPhpDeclarationHandlerTest extends LightCodeInsightFixtureTestCase {
 
     private static final String NAVIGATION_TARGET_SOURCE_FILE = "TestTarget.php";
 
-    private GotoHandlerAssertion assertion;
-    private PsiElementFromFixtureFile twigElementResolver;
+    private GotoDeclarationHandlerAssertion assertion;
+    private PsiElementFromFixtureFileLoader twigElementResolver;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         myFixture.copyFileToProject(NAVIGATION_TARGET_SOURCE_FILE);
-        assertion = new GotoHandlerAssertion(new GotoPhpDeclarationHandler(), myFixture.getEditor());
-        twigElementResolver = new PsiElementFromFixtureFile(myFixture, getTestDataPath(), TwigFileType.INSTANCE);
+        assertion = new GotoDeclarationHandlerAssertion(new GotoPhpDeclarationHandler(), myFixture.getEditor());
+        twigElementResolver = new PsiElementFromFixtureFileLoader(myFixture, getTestDataPath(), TwigFileType.INSTANCE);
     }
 
     public String getTestDataPath() {

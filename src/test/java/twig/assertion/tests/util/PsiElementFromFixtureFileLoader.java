@@ -9,13 +9,13 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
-public class PsiElementFromFixtureFile {
+public class PsiElementFromFixtureFileLoader {
 
     private final CodeInsightTestFixture fixture;
     private final String templateFixtureBasePath;
     private final LanguageFileType languageFileType;
 
-    public PsiElementFromFixtureFile(CodeInsightTestFixture fixture, String templateFixtureBasePath, LanguageFileType languageFileType) {
+    public PsiElementFromFixtureFileLoader(CodeInsightTestFixture fixture, String templateFixtureBasePath, LanguageFileType languageFileType) {
 
         this.fixture = fixture;
         this.templateFixtureBasePath = templateFixtureBasePath;
