@@ -1,22 +1,27 @@
 package twig.assertion.tests.reference;
 
 import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.psi.PsiElement;
+import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import com.jetbrains.twig.TwigFileType;
 import org.junit.Assert;
 import twig.assertion.reference.GotoPhpDeclarationHandler;
 import twig.assertion.tests.util.GotoHandlerAssertion;
+import twig.assertion.tests.util.PsiElementFromFixtureFile;
 
-public class GotoPhpDeclarationHandlerTest extends FixtureTest {
+public class GotoPhpDeclarationHandlerTest extends LightCodeInsightFixtureTestCase {
 
     private static final String NAVIGATION_TARGET_SOURCE_FILE = "TestTarget.php";
 
     private GotoHandlerAssertion assertion;
+    private PsiElementFromFixtureFile twigElementResolver;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         myFixture.copyFileToProject(NAVIGATION_TARGET_SOURCE_FILE);
-        assertion = new GotoHandlerAssertion(new GotoPhpDeclarationHandler(), myFixture);
+        assertion = new GotoHandlerAssertion(new GotoPhpDeclarationHandler(), myFixture.getEditor());
+        twigElementResolver = new PsiElementFromFixtureFile(myFixture, getTestDataPath(), TwigFileType.INSTANCE);
     }
 
     public String getTestDataPath() {
@@ -25,29 +30,22 @@ public class GotoPhpDeclarationHandlerTest extends FixtureTest {
 
     @org.testng.annotations.Test
     public void testGetGotoDeclarationTargets_NavigatesToClassDeclaration() {
-        assertion.navigationContains(
-                TwigFileType.INSTANCE,
-                readFile("navigateToClassDeclaration.twig"),
-                "\\TestTarget"
-        );
+        assertNavigationSuggestsFqn("\\TestTarget", "navigateToClassDeclaration.twig");
     }
 
     @org.testng.annotations.Test
     public void testGetGotoDeclarationTargets_NavigatesToMethodDeclaration() {
-        assertion.navigationContains(
-                TwigFileType.INSTANCE,
-                readFile("navigateToMethod.twig"),
-                "\\TestTarget.getAnswer"
-        );
+        assertNavigationSuggestsFqn("\\TestTarget.getAnswer", "navigateToMethod.twig");
     }
 
     @org.testng.annotations.Test
     public void testGetGotoDeclarationTargets_NavigatesToFieldDeclaration() {
-        assertion.navigationContains(
-                TwigFileType.INSTANCE,
-                readFile("navigateToField.twig"),
-                "\\TestTarget.$someField"
-        );
+        assertNavigationSuggestsFqn("\\TestTarget.$someField", "navigateToField.twig");
+    }
+
+    private void assertNavigationSuggestsFqn(String expectedNavigationTargetFQN, String fileName) {
+        PsiElement navigateFromElement = twigElementResolver.resolveAtCaret(fileName);
+        assertion.navigationContains(navigateFromElement, expectedNavigationTargetFQN);
     }
 
     @org.testng.annotations.Test
