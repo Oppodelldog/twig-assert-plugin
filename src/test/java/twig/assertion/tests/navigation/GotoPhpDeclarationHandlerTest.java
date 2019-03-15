@@ -1,11 +1,11 @@
-package twig.assertion.tests.reference;
+package twig.assertion.tests.navigation;
 
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import com.jetbrains.twig.TwigFileType;
 import org.junit.Assert;
-import twig.assertion.reference.GotoPhpDeclarationHandler;
+import twig.assertion.navigation.GotoPhpDeclarationHandler;
 import twig.assertion.tests.util.GotoDeclarationHandlerAssertion;
 import twig.assertion.tests.util.PsiElementFromFixtureFileLoader;
 
@@ -25,7 +25,7 @@ public class GotoPhpDeclarationHandlerTest extends LightCodeInsightFixtureTestCa
     }
 
     public String getTestDataPath() {
-        return "src/test/java/twig/assertion/tests/reference/fixtures";
+        return "src/test/java/twig/assertion/tests/navigation/fixtures";
     }
 
     @org.testng.annotations.Test

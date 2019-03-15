@@ -1,4 +1,4 @@
-package twig.assertion.reference;
+package twig.assertion.navigation;
 
 import com.intellij.codeInsight.completion.PlainPrefixMatcher;
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler;

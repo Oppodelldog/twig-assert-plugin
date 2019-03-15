@@ -34,7 +34,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <completion.contributor language="Twig"
                                 implementationClass="twig.assertion.completion.TwigCompletionContributor"/>
-        <gotoDeclarationHandler implementation="twig.assertion.reference.GotoPhpDeclarationHandler"/>
+        <gotoDeclarationHandler implementation="twig.assertion.navigation.GotoPhpDeclarationHandler"/>
     </extensions>
 
     <actions>
