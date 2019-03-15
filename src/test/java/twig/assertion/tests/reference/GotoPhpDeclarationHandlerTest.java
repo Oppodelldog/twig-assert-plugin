@@ -8,7 +8,7 @@ import twig.assertion.tests.util.GotoHandlerAssertion;
 
 public class GotoPhpDeclarationHandlerTest extends FixtureTest {
 
-    private static final String NAVIGATION_TARGET_SOURCE_FILE = "Test.php";
+    private static final String NAVIGATION_TARGET_SOURCE_FILE = "TestTarget.php";
 
     private GotoHandlerAssertion assertion;
 
