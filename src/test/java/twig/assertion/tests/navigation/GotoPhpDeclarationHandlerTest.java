@@ -5,13 +5,14 @@ import com.intellij.psi.PsiElement;
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import com.jetbrains.twig.TwigFileType;
 import org.junit.Assert;
+import org.testng.annotations.Test;
 import twig.assertion.navigation.GotoPhpDeclarationHandler;
 import twig.assertion.tests.util.GotoDeclarationHandlerAssertion;
 import twig.assertion.tests.util.PsiElementFromFixtureFileLoader;
 
 public class GotoPhpDeclarationHandlerTest extends LightCodeInsightFixtureTestCase {
 
-    private static final String NAVIGATION_TARGET_SOURCE_FILE = "TestTarget.php";
+    private static final String NAVIGATION_TARGET_SOURCE_FILE = "CompletionTestTargetTestTarget.php";
 
     private GotoDeclarationHandlerAssertion assertion;
     private PsiElementFromFixtureFileLoader twigElementResolver;
@@ -28,19 +29,19 @@ public class GotoPhpDeclarationHandlerTest extends LightCodeInsightFixtureTestCa
         return "src/test/java/twig/assertion/tests/navigation/fixtures";
     }
 
-    @org.testng.annotations.Test
+    @Test
     public void testGetGotoDeclarationTargets_NavigatesToClassDeclaration() {
-        assertNavigationSuggestsFqn("\\TestTarget", "navigateToClassDeclaration.twig");
+        assertNavigationSuggestsFqn("\\CompletionTestTarget", "navigateToClassDeclaration.twig");
     }
 
-    @org.testng.annotations.Test
+    @Test
     public void testGetGotoDeclarationTargets_NavigatesToMethodDeclaration() {
-        assertNavigationSuggestsFqn("\\TestTarget.getAnswer", "navigateToMethod.twig");
+        assertNavigationSuggestsFqn("\\CompletionTestTarget.getAnswer", "navigateToMethod.twig");
     }
 
-    @org.testng.annotations.Test
+    @Test
     public void testGetGotoDeclarationTargets_NavigatesToFieldDeclaration() {
-        assertNavigationSuggestsFqn("\\TestTarget.$someField", "navigateToField.twig");
+        assertNavigationSuggestsFqn("\\CompletionTestTarget.$someField", "navigateToField.twig");
     }
 
     private void assertNavigationSuggestsFqn(String expectedNavigationTargetFQN, String fileName) {
@@ -48,7 +49,7 @@ public class GotoPhpDeclarationHandlerTest extends LightCodeInsightFixtureTestCa
         assertion.navigationContains(navigateFromElement, expectedNavigationTargetFQN);
     }
 
-    @org.testng.annotations.Test
+    @Test
     public void testGetActionText() {
         Assert.assertNull(new GotoPhpDeclarationHandler().getActionText(getDataContextStub()));
     }
