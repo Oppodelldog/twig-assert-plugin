@@ -8,6 +8,7 @@ import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.completion.PhpCompletionUtil;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.twig.TwigTokenTypes;
+import twig.assertion.util.ElementNavigator;
 import twig.assertion.util.FindElements;
 import twig.assertion.util.Fqn;
 
@@ -18,7 +19,8 @@ abstract class AbstractPhpClassMemberCompletionProvider extends CompletionProvid
     Collection<PhpClass> findPhpClassesForVariableLeftFromCaret(CompletionParameters parameters) {
         PsiElement currElement = parameters.getPosition().getOriginalElement();
         if (currElement.getNode().getElementType() == TwigTokenTypes.IDENTIFIER && currElement.getPrevSibling().getText().equals(".")) {
-            String phpClassnameTwigFormatted = FindElements.findAssertType(parameters.getOriginalFile(), currElement);
+            String variableName = new ElementNavigator(currElement).prev(2).getText();
+            String phpClassnameTwigFormatted = FindElements.findAssertTypeName(parameters.getOriginalFile(), variableName);
             String phpClassname = Fqn.fromTwigString(phpClassnameTwigFormatted);
             PhpIndex phpIndex = PhpIndex.getInstance(currElement.getProject());
             PlainPrefixMatcher pm = new PlainPrefixMatcher(phpClassname);

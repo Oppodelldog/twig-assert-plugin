@@ -1,14 +1,11 @@
 package twig.assertion.navigation;
 
-import com.intellij.codeInsight.completion.PlainPrefixMatcher;
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.jetbrains.php.PhpIndex;
-import com.jetbrains.php.completion.PhpCompletionUtil;
-import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.twig.TwigTokenTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +14,7 @@ import twig.assertion.util.ElementNavigator;
 import twig.assertion.util.FindElements;
 import twig.assertion.util.Fqn;
 
-import java.util.ArrayList;
+import static com.jetbrains.twig.TwigTokenTypes.IDENTIFIER;
 
 public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
 
@@ -27,14 +24,25 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
         if (psiElement == null) {
             return null;
         }
-
-        if (isCaretOnObjectMember(psiElement)) {
-            return findClassMembers(psiElement);
-        } else if (isCursorOnFQCN(psiElement)) {
+        if (isCursorOnFQCN(psiElement)) {
             return findClass(psiElement);
         }
 
-        return null;
+        PsiElement accessOrigin = TwigAccessOriginFinder.getOriginOfMemberTree(psiElement);
+        if ((accessOrigin) == null) {
+            return null;
+        }
+
+        if (isElementOrigin(psiElement, accessOrigin)) {
+            return new PsiElement[]{FindElements.findAssertPsiElement(psiElement.getContainingFile(), psiElement.getText())};
+        }
+
+        PhpClassMemberResolver resolver = new PhpClassMemberResolver(psiElement, accessOrigin);
+        return resolver.resolve();
+    }
+
+    private boolean isElementOrigin(PsiElement psiElement, PsiElement accessOrigin) {
+        return accessOrigin.equals(psiElement) || (accessOrigin.getFirstChild() != null && accessOrigin.getFirstChild().equals(psiElement));
     }
 
     private PsiElement[] findClass(PsiElement psiElement) {
@@ -45,41 +53,16 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
     }
 
     private boolean isCursorOnFQCN(PsiElement psiElement) {
-        ElementNavigator e = new ElementNavigator(psiElement);
-        return e.prev(1).getNode().getElementType() == TwigTokenTypes.DOUBLE_QUOTE &&
-                e.prev(2) instanceof PsiWhiteSpace &&
-                e.prev(3).getNode().getElementType() == TwigTokenTypes.IDENTIFIER &&
-                e.prev(4) instanceof PsiWhiteSpace &&
-                e.prev(5).getNode().getText().equals(TwigAssertCompletionProvider.ASSERT_TAG_NAME);
-    }
-
-    private PsiElement[] findClassMembers(PsiElement psiElement) {
-        PlainPrefixMatcher pm = getPlainPrefixMatcherFromAssertedType(psiElement);
-        String cursorElementName = psiElement.getText();
-
-        ArrayList<PsiElement> foundElements = new ArrayList<>();
-        PhpIndex phpIndex = PhpIndex.getInstance(psiElement.getProject());
-        for (PhpClass phpClass : PhpCompletionUtil.getAllClasses(pm, phpIndex)) {
-            phpClass.getMethods().stream().filter(method -> method.getName().equals(cursorElementName)).findFirst().ifPresent(foundElements::add);
-            phpClass.getFields().stream().filter(field -> field.getName().equals(cursorElementName)).findFirst().ifPresent(foundElements::add);
+        try {
+            ElementNavigator e = new ElementNavigator(psiElement);
+            return e.prev(1).getNode().getElementType() == TwigTokenTypes.DOUBLE_QUOTE &&
+                    e.prev(2) instanceof PsiWhiteSpace &&
+                    e.prev(3).getNode().getElementType() == IDENTIFIER &&
+                    e.prev(4) instanceof PsiWhiteSpace &&
+                    e.prev(5).getNode().getText().equals(TwigAssertCompletionProvider.ASSERT_TAG_NAME);
+        } catch (Exception e) {
+            return false;
         }
-
-        return foundElements.toArray(new PsiElement[0]);
-    }
-
-    @NotNull
-    private PlainPrefixMatcher getPlainPrefixMatcherFromAssertedType(PsiElement psiElement) {
-        String classNameTwigFormatted = FindElements.findAssertType(psiElement.getContainingFile(), psiElement);
-        String className = Fqn.fromTwigString(classNameTwigFormatted);
-
-        return new PlainPrefixMatcher(className);
-    }
-
-    private boolean isCaretOnObjectMember(PsiElement psiElement) {
-        return psiElement.getNode() != null
-                && psiElement.getNode().getElementType() == TwigTokenTypes.IDENTIFIER
-                && psiElement.getPrevSibling() != null
-                && psiElement.getPrevSibling().getText().equals(".");
     }
 
     @Nullable

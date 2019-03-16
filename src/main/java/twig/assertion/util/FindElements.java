@@ -24,9 +24,8 @@ public class FindElements {
         return false;
     };
 
-    public static String findAssertType(PsiFile file, PsiElement currElement) {
-        String variableName = new ElementNavigator(currElement).prev(2).getText();
-        ArrayList<PsiElement> elements = findElementsInFile(file);
+    public static String findAssertTypeName(PsiFile file, String variableName) {
+        ArrayList<PsiElement> elements = findAssertsInFile(file);
         for (PsiElement element :
                 elements) {
             ElementNavigator e = new ElementNavigator(element.getFirstChild());
@@ -38,7 +37,21 @@ public class FindElements {
         return "";
     }
 
-    private static ArrayList<PsiElement> findElementsInFile(PsiFile file) {
+    public static PsiElement findAssertPsiElement(PsiFile file, String variableName) {
+        ArrayList<PsiElement> elements = findAssertsInFile(file);
+        for (PsiElement element :
+                elements) {
+            ElementNavigator e = new ElementNavigator(element.getFirstChild());
+            if (e.next(4).getText().equals(variableName)) {
+                return e.prev(0);
+            }
+        }
+
+        return null;
+    }
+
+
+    private static ArrayList<PsiElement> findAssertsInFile(PsiFile file) {
         final ArrayList<PsiElement> foundElements = new ArrayList<>();
         TwigLookupUtil.ElementFinder finder = new TwigLookupUtil.ElementFinder(FindElements.conditionAssertTag) {
 

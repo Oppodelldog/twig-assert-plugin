@@ -1,0 +1,7 @@
+{% assert myObj "\\TestTarget" %}
+{% assert myChild "\\ChildClass" %}
+
+{{ myObj.setChild(myChild.getTarget().getChild().get<caret>Bam())}}
+
+
+

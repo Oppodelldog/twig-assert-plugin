@@ -1,0 +1,16 @@
+{% assert myObj "\\TestTarget" %}
+{% assert myChild "\\ChildClass" %}
+
+{{ myObj.getChild().childObject.getTarget().get<caret>Child() }}
+
+
+
+{{ myObj.someField }}
+{{ myObj.getAnswer() }}
+
+{{ myObj.getChild().getText() }}
+{{ myObj.getChild().childObject.getText() }}
+{{ myObj.getChild().childObject.getTarget() }}
+
+{{ myObj.setChild(myChild)}}
+{{ myObj.setChild(myChild.getTarget().getChild().childObject)}}
