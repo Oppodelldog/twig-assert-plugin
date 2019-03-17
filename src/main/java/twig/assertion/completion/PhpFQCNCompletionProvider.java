@@ -12,8 +12,8 @@ import com.jetbrains.php.completion.PhpCompletionUtil;
 import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.twig.TwigTokenTypes;
 import org.jetbrains.annotations.NotNull;
-import twig.assertion.util.ElementNavigator;
-import twig.assertion.util.Fqn;
+import twig.assertion.util.PsiElementAccessor;
+import twig.assertion.util.TwigFqn;
 
 class PhpFQCNCompletionProvider extends CompletionProvider<CompletionParameters> {
 
@@ -23,13 +23,13 @@ class PhpFQCNCompletionProvider extends CompletionProvider<CompletionParameters>
 
     protected void addCompletions(@NotNull CompletionParameters parameters, @NotNull ProcessingContext context, @NotNull CompletionResultSet result) {
         PsiElement currElement = parameters.getPosition().getOriginalElement();
-        ElementNavigator e = new ElementNavigator(parameters.getPosition().getOriginalElement());
+        PsiElementAccessor constraints = new PsiElementAccessor(parameters.getPosition().getOriginalElement());
 
-        if (e.prev(1) instanceof PsiWhiteSpace &&
-                e.prev(2).getNode().getElementType() == TwigTokenTypes.IDENTIFIER &&
-                e.prev(3) instanceof PsiWhiteSpace &&
-                e.prev(4).getNode().getElementType() == TwigTokenTypes.TAG_NAME &&
-                e.prev(4).getNode().getText().equals(TwigAssertCompletionProvider.ASSERT_TAG_NAME)
+        if (constraints.prevInstanceOf(1, PsiWhiteSpace.class) &&
+                constraints.prevElementTypeOf(2, TwigTokenTypes.IDENTIFIER) &&
+                constraints.prevInstanceOf(3, PsiWhiteSpace.class) &&
+                constraints.prevElementTypeOf(4, TwigTokenTypes.TAG_NAME) &&
+                constraints.prevElementTextEquals(4, TwigAssertCompletionProvider.ASSERT_TAG_NAME)
         ) {
             PhpIndex phpIndex = PhpIndex.getInstance(currElement.getProject());
             PhpCompletionUtil.getAllClasses(PrefixMatcher.ALWAYS_TRUE, phpIndex).forEach(
@@ -50,7 +50,7 @@ class PhpFQCNCompletionProvider extends CompletionProvider<CompletionParameters>
             if (object instanceof PhpClass) {
                 try {
                     String namespaceFQN = ((PhpClass) object).getNamespaceName();
-                    namespaceFQN = Fqn.toTwigString(namespaceFQN);
+                    namespaceFQN = TwigFqn.toTwigString(namespaceFQN);
                     context.getDocument().insertString(context.getStartOffset(), "\"" + namespaceFQN);
                 } finally {
                     PsiDocumentManager.getInstance(context.getProject()).commitDocument(context.getDocument());

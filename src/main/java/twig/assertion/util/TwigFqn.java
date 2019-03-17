@@ -1,6 +1,6 @@
 package twig.assertion.util;
 
-public class Fqn {
+public class TwigFqn {
     public static String toTwigString(String s) {
         return s.replace("\\", "\\\\");
     }

@@ -1,4 +1,4 @@
-package twig.assertion.navigation;
+package twig.assertion.util;
 
 import com.intellij.psi.PsiElement;
 

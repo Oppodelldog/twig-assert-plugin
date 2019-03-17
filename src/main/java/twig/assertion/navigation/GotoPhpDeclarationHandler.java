@@ -10,9 +10,7 @@ import com.jetbrains.twig.TwigTokenTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import twig.assertion.completion.TwigAssertCompletionProvider;
-import twig.assertion.util.ElementNavigator;
-import twig.assertion.util.FindElements;
-import twig.assertion.util.Fqn;
+import twig.assertion.util.*;
 
 import static com.jetbrains.twig.TwigTokenTypes.IDENTIFIER;
 
@@ -45,28 +43,28 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
         return new PsiElement[]{};
     }
 
-    private boolean isElementOrigin(PsiElement psiElement, PsiElement accessOrigin) {
+    private boolean isElementOrigin(@NotNull PsiElement psiElement, @NotNull PsiElement accessOrigin) {
         return accessOrigin.equals(psiElement) || (accessOrigin.getFirstChild() != null && accessOrigin.getFirstChild().equals(psiElement));
     }
 
-    private PsiElement[] findClass(PsiElement psiElement) {
-        String fullQualifiedClassName = Fqn.fromTwigString(psiElement.getText());
+    @NotNull
+    private PsiElement[] findClass(@NotNull PsiElement psiElement) {
+        String fullQualifiedClassName = TwigFqn.fromTwigString(psiElement.getText());
         PhpIndex phpIndex = PhpIndex.getInstance(psiElement.getProject());
 
         return phpIndex.getClassesByFQN(fullQualifiedClassName).toArray(new PsiElement[0]);
     }
 
-    private boolean isCursorOnFQCN(PsiElement psiElement) {
-        try {
-            ElementNavigator e = new ElementNavigator(psiElement);
-            return e.prev(1).getNode().getElementType() == TwigTokenTypes.DOUBLE_QUOTE &&
-                    e.prev(2) instanceof PsiWhiteSpace &&
-                    e.prev(3).getNode().getElementType() == IDENTIFIER &&
-                    e.prev(4) instanceof PsiWhiteSpace &&
-                    e.prev(5).getNode().getText().equals(TwigAssertCompletionProvider.ASSERT_TAG_NAME);
-        } catch (Exception e) {
-            return false;
-        }
+    private boolean isCursorOnFQCN(@NotNull PsiElement psiElement) {
+
+        PsiElementAccessor constraints = new PsiElementAccessor(psiElement);
+
+        return constraints.prevElementTypeOf(1, TwigTokenTypes.DOUBLE_QUOTE) &&
+                constraints.prevInstanceOf(2, PsiWhiteSpace.class) &&
+                constraints.prevElementTypeOf(3, IDENTIFIER) &&
+                constraints.prevInstanceOf(4, PsiWhiteSpace.class) &&
+                constraints.prevElementTextEquals(5, TwigAssertCompletionProvider.ASSERT_TAG_NAME);
+
     }
 
     @Nullable

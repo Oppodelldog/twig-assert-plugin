@@ -5,7 +5,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement;
 import junit.framework.TestCase;
-import twig.assertion.util.ElementNavigator;
+import twig.assertion.util.PsiElementAccessor;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,11 +34,11 @@ public class GotoDeclarationHandlerAssertion {
         PsiElement[] gotoDeclarationTargets = handler.getGotoDeclarationTargets(psiElement, 0, editor);
         if (gotoDeclarationTargets != null && gotoDeclarationTargets.length > 0) {
             for (PsiElement gotoDeclarationTarget : gotoDeclarationTargets) {
-                ElementNavigator e = new ElementNavigator(gotoDeclarationTarget);
-                if (!e.next(4).getText().equals(expectedVariableName)) {
+                PsiElementAccessor constraints = new PsiElementAccessor(gotoDeclarationTarget);
+                if (!constraints.nextElementTextEquals(4, expectedVariableName)) {
                     continue;
                 }
-                if (!e.next(7).getText().equals(expectedType)) {
+                if (!constraints.nextElementTextEquals(7, expectedType)) {
                     continue;
                 }
                 found = true;

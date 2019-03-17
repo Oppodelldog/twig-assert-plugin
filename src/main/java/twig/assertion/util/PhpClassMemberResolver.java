@@ -1,4 +1,4 @@
-package twig.assertion.navigation;
+package twig.assertion.util;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
@@ -11,8 +11,6 @@ import com.jetbrains.php.lang.psi.elements.impl.MethodImpl;
 import com.jetbrains.twig.TwigTokenTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import twig.assertion.util.FindElements;
-import twig.assertion.util.Fqn;
 
 import java.util.Optional;
 
@@ -149,14 +147,14 @@ public class PhpClassMemberResolver {
     @NotNull
     private String getClassNameFromAssertType(@NotNull PsiElement psiElement) {
         String classNameTwigFormatted = FindElements.findAssertTypeName(psiElement.getContainingFile(), psiElement.getText());
-        return Fqn.fromTwigString(classNameTwigFormatted);
+        return TwigFqn.fromTwigString(classNameTwigFormatted);
     }
 
-    PsiElement getResolvedPsiElement() {
+    public PsiElement getResolvedPsiElement() {
         return resolvedPsiElement;
     }
 
-    boolean hasResolvedPsiElement() {
+    public boolean hasResolvedPsiElement() {
         return resolvedPsiElement != null;
     }
 

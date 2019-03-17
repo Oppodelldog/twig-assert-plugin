@@ -12,5 +12,6 @@ class TwigCompletionContributor extends CompletionContributor {
         this.extend(CompletionType.BASIC, PlatformPatterns.psiElement().withParent(TwigCompositeElement.class), new PhpMethodCompletionProvider());
         this.extend(CompletionType.BASIC, PlatformPatterns.psiElement().withParent(TwigCompositeElement.class), new PhpFieldCompletionProvider());
         this.extend(CompletionType.BASIC, PlatformPatterns.psiElement().withParent(TwigCompositeElement.class), new TwigAssertCompletionProvider());
+        this.extend(CompletionType.BASIC, PlatformPatterns.psiElement().withParent(TwigCompositeElement.class), new TwigVariableNameCompletionProvider());
     }
 }
