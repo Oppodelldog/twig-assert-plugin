@@ -38,7 +38,11 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
         }
 
         PhpClassMemberResolver resolver = new PhpClassMemberResolver(psiElement, accessOrigin);
-        return resolver.resolve();
+        resolver.resolve();
+        if (resolver.hasResolvedPsiElement()) {
+            return new PsiElement[]{resolver.getResolvedPsiElement()};
+        }
+        return new PsiElement[]{};
     }
 
     private boolean isElementOrigin(PsiElement psiElement, PsiElement accessOrigin) {

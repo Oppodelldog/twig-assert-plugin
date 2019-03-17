@@ -19,7 +19,7 @@ import java.util.Optional;
 import static com.jetbrains.twig.elements.TwigElementTypes.FUNCTION_CALL;
 import static com.jetbrains.twig.elements.TwigElementTypes.METHOD_CALL;
 
-class PhpClassMemberResolver {
+public class PhpClassMemberResolver {
     private final PhpIndex phpIndex;
     private final PsiElement resolvingTarget;
     private final PsiElement originElement;
@@ -27,21 +27,38 @@ class PhpClassMemberResolver {
     private PhpClass prevElementType;
     private String previousElementClassName;
 
-    PhpClassMemberResolver(PsiElement psiElement, PsiElement originElement) {
+    private PsiElement resolvedPsiElement;
+    private PhpClass resolvedPhpClass;
+
+    public PhpClassMemberResolver(PsiElement psiElement, PsiElement originElement) {
         phpIndex = PhpIndex.getInstance(psiElement.getProject());
         this.resolvingTarget = psiElement;
         this.originElement = originElement;
     }
 
-    PsiElement[] resolve() {
+    public void resolve() {
         try {
-            return walk(originElement);
+            initState();
+            walk(originElement);
         } catch (Throwable t) {
-            return new PsiElement[0];
+            handleError();
         }
     }
 
-    private PsiElement[] walk(PsiElement current) {
+    private void initState() {
+        resolvedPsiElement = null;
+        resolvedPhpClass = null;
+        currentNavigationTarget = null;
+        prevElementType = null;
+        previousElementClassName = "";
+    }
+
+    private void handleError() {
+        resolvedPsiElement = null;
+        resolvedPhpClass = null;
+    }
+
+    private void walk(PsiElement current) {
         IElementType type = current.getNode().getElementType();
 
         if (type == METHOD_CALL) {
@@ -60,15 +77,17 @@ class PhpClassMemberResolver {
         }
 
         if (reachedResolvingTarget(current, resolvingTarget)) {
-            return new PsiElement[]{currentNavigationTarget};
+            resolvedPsiElement = currentNavigationTarget;
+            resolvedPhpClass = getPhpClassFromMember(previousElementClassName);
+            return;
         }
 
         prevElementType = getPhpClassFromMember(previousElementClassName);
         if (prevElementType == null) {
-            return new PsiElement[]{};
+            return;
         }
 
-        return walk(current.getNextSibling());
+        walk(current.getNextSibling());
     }
 
     private boolean reachedResolvingTarget(@NotNull PsiElement current, PsiElement psiElement) {
@@ -80,7 +99,6 @@ class PhpClassMemberResolver {
         if (current == null) {
             return false;
         }
-
 
         do {
             if (current.equals(psiElement)) {
@@ -132,6 +150,18 @@ class PhpClassMemberResolver {
     private String getClassNameFromAssertType(@NotNull PsiElement psiElement) {
         String classNameTwigFormatted = FindElements.findAssertTypeName(psiElement.getContainingFile(), psiElement.getText());
         return Fqn.fromTwigString(classNameTwigFormatted);
+    }
+
+    PsiElement getResolvedPsiElement() {
+        return resolvedPsiElement;
+    }
+
+    boolean hasResolvedPsiElement() {
+        return resolvedPsiElement != null;
+    }
+
+    public PhpClass getResolvedPhpClass() {
+        return resolvedPhpClass;
     }
 }
 

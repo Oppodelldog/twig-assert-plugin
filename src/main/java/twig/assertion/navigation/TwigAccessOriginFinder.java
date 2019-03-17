@@ -5,9 +5,9 @@ import com.intellij.psi.PsiElement;
 import static com.jetbrains.twig.TwigTokenTypes.IDENTIFIER;
 import static com.jetbrains.twig.elements.TwigElementTypes.METHOD_CALL;
 
-class TwigAccessOriginFinder {
+public class TwigAccessOriginFinder {
 
-    static PsiElement getOriginOfMemberTree(PsiElement psiElement) {
+    public static PsiElement getOriginOfMemberTree(PsiElement psiElement) {
         boolean navPossible;
         while ((navPossible = isNavigationPossible(psiElement)) && !foundOrigin(psiElement)) {
             if (psiElement.getPrevSibling() == null) {
