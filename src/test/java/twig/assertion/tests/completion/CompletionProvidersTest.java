@@ -70,36 +70,25 @@ public class CompletionProvidersTest extends LightCodeInsightFixtureTestCase {
         assertCompletionIsEmpty(new String[]{"myObj"}, "not_completeVariable_1.twig");
     }
 
-
     private void assertCompletionContains(String[] expectedLookupString, String templateFileName) {
-        String fullFilePath = Paths.get(getTestDataPath(), templateFileName).toString();
-        myFixture.configureByText(TwigFileType.INSTANCE, FixtureFileReader.readFile(fullFilePath));
-        myFixture.completeBasic();
-
+        startCompletion(templateFileName);
         assertInLookupList(expectedLookupString);
     }
 
     private void assertCompletionIsEmpty(String[] expectedSuggestions, String templateFileName) {
-        String fullFilePath = Paths.get(getTestDataPath(), templateFileName).toString();
-        myFixture.configureByText(TwigFileType.INSTANCE, FixtureFileReader.readFile(fullFilePath));
-        myFixture.completeBasic();
-
+        startCompletion(templateFileName);
         assertNotInLookupList(expectedSuggestions);
     }
 
+    private void startCompletion(String templateFileName) {
+        String fullFilePath = Paths.get(getTestDataPath(), templateFileName).toString();
+        myFixture.configureByText(TwigFileType.INSTANCE, FixtureFileReader.readFile(fullFilePath));
+        myFixture.completeBasic();
+    }
+
     private void assertInLookupList(String[] expectedSuggestions) {
-        int found = 0;
         List<String> suggestions = myFixture.getLookupElementStrings();
-        if (suggestions == null) {
-            fail("expected lookup list not be empty, but it was");
-        }
-        for (String suggestion : suggestions) {
-            for (String expectedSuggestion : expectedSuggestions) {
-                if (suggestion.contains(expectedSuggestion)) {
-                    found++;
-                }
-            }
-        }
+        int found = countContainingStrings(expectedSuggestions, suggestions);
 
         if (found != expectedSuggestions.length) {
             fail(String.format("expected to find [%s] in [%s], but did not", String.join(", ", expectedSuggestions), String.join(", ", suggestions)));
@@ -107,8 +96,16 @@ public class CompletionProvidersTest extends LightCodeInsightFixtureTestCase {
     }
 
     private void assertNotInLookupList(String[] expectedSuggestions) {
-        int found = 0;
         List<String> suggestions = myFixture.getLookupElementStrings();
+        int found = countContainingStrings(expectedSuggestions, suggestions);
+
+        if (found != 0) {
+            fail(String.format("expected not to find [%s] in [%s]", String.join(", ", expectedSuggestions), String.join(", ", suggestions)));
+        }
+    }
+
+    private int countContainingStrings(String[] expectedSuggestions, List<String> suggestions) {
+        int found = 0;
         if (suggestions == null) {
             fail("expected lookup list not be empty, but it was");
         }
@@ -119,9 +116,7 @@ public class CompletionProvidersTest extends LightCodeInsightFixtureTestCase {
                 }
             }
         }
-
-        if (found != 0) {
-            fail(String.format("expected not to find [%s] in [%s]", String.join(", ", expectedSuggestions), String.join(", ", suggestions)));
-        }
+        return found;
     }
+
 }
