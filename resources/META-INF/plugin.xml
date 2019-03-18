@@ -35,7 +35,7 @@
         <completion.contributor language="Twig"
                                 implementationClass="twig.assertion.completion.TwigCompletionContributor"/>
         <gotoDeclarationHandler implementation="twig.assertion.navigation.GotoPhpDeclarationHandler"/>
-        <refactoring.elementListenerProvider implementation="twig.assertion.refactoring.ElementListenerProvider"/>
+        <refactoring.elementListenerProvider implementation="twig.assertion.refactoring.RefactoringProvider"/>
     </extensions>
 
     <actions>

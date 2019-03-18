@@ -20,7 +20,7 @@ import twig.assertion.util.TwigFqn;
 
 import static twig.assertion.completion.TwigAssertCompletionProvider.ASSERT_TAG_NAME;
 
-public class ElementListenerProvider extends RefactoringScopeElementListenerProvider {
+class RefactoringProvider extends RefactoringScopeElementListenerProvider {
     @Override
     public RefactoringElementListener getListener(PsiElement element) {
         RefactoringElementListenerComposite composite = new RefactoringElementListenerComposite();
@@ -30,7 +30,7 @@ public class ElementListenerProvider extends RefactoringScopeElementListenerProv
         return composite;
     }
 
-    class RefactoringFQCNAdapter extends com.intellij.refactoring.listeners.RefactoringElementAdapter {
+    static class RefactoringFQCNAdapter extends com.intellij.refactoring.listeners.RefactoringElementAdapter {
         private String originalFqn = "";
 
         RefactoringFQCNAdapter(PsiElement originalElement) {
