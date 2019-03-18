@@ -53,6 +53,20 @@ public class FindElements {
         return null;
     }
 
+    public static ArrayList<PsiElement> findAssertPsiElementsByFQCN(PsiFile file, String fqcn) {
+        ArrayList<PsiElement> matchingElements = new ArrayList<>();
+        ArrayList<PsiElement> elements = findAssertsInFile(file);
+        for (PsiElement element :
+                elements) {
+            PsiElementAccessor constraints = new PsiElementAccessor(element.getFirstChild());
+            if (constraints.nextElementTextEquals(7, fqcn)) {
+                constraints.getNext(7).ifPresent(matchingElements::add);
+            }
+        }
+
+        return matchingElements;
+    }
+
     public static ArrayList<String> findVariableNamesFromAsserts(PsiFile file) {
         final ArrayList<String> variableNames = new ArrayList<>();
         findAssertsInFile(file).forEach(psiElement -> new PsiElementAccessor(psiElement.getFirstChild()).getNext(4).ifPresent(psiElement1 -> variableNames.add(psiElement1.getText())));
