@@ -19,4 +19,8 @@ class ChildClass
     {
         return null;
     }
+
+    public function getChildObject() : ChildClass{
+        return null;
+    }
 }

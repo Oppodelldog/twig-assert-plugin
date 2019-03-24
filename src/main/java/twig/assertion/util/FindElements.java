@@ -4,8 +4,12 @@ import com.intellij.openapi.util.Condition;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
+import com.intellij.psi.tree.IElementType;
+import com.jetbrains.twig.TwigTokenTypes;
 import com.jetbrains.twig.elements.TwigCompositeElement;
+import com.jetbrains.twig.elements.TwigElementTypes;
 import com.jetbrains.twig.util.TwigLookupUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -26,7 +30,28 @@ public class FindElements {
         return false;
     };
 
-    static String findAssertTypeName(PsiFile file, String variableName) {
+    private static Condition<PsiElement> conditionObjectAccess(String variableName) {
+        return element -> {
+            if (element.getText().equals(variableName) && element.getContext() != null && element.getNextSibling() != null) {
+                IElementType contextElementType = element.getContext().getNode().getElementType();
+                if (element.getParent().getNode().getElementType() == TwigElementTypes.METHOD_CALL ||
+                        element.getParent().getNode().getElementType() == TwigElementTypes.FUNCTION_CALL) {
+                    assert element.getParent().getContext() != null;
+                    contextElementType = element.getParent().getContext().getNode().getElementType();
+                }
+                return ((contextElementType == TwigElementTypes.TAG ||
+                        contextElementType == TwigElementTypes.PRINT_BLOCK ||
+                        contextElementType == TwigElementTypes.IF_TAG ||
+                        contextElementType == TwigElementTypes.METHOD_CALL ||
+                        contextElementType == TwigElementTypes.FUNCTION_CALL)
+                        && element.getNextSibling().getNode().getElementType() == TwigTokenTypes.DOT
+                );
+            }
+            return false;
+        };
+    }
+
+    public static String findAssertTypeName(PsiFile file, String variableName) {
         ArrayList<PsiElement> elements = findAssertsInFile(file);
         for (PsiElement element :
                 elements) {
@@ -53,13 +78,21 @@ public class FindElements {
         return null;
     }
 
+    public static ArrayList<PsiElement> findAllAssertPsiElements(PsiFile file) {
+        return findAssertElements(file, "");
+    }
+
     public static ArrayList<PsiElement> findAssertPsiElementsByFQCN(PsiFile file, String fqcn) {
+        return findAssertElements(file, fqcn);
+    }
+
+    @NotNull
+    private static ArrayList<PsiElement> findAssertElements(PsiFile file, String searchedFQN) {
         ArrayList<PsiElement> matchingElements = new ArrayList<>();
         ArrayList<PsiElement> elements = findAssertsInFile(file);
-        for (PsiElement element :
-                elements) {
+        for (PsiElement element : elements) {
             PsiElementAccessor constraints = new PsiElementAccessor(element.getFirstChild());
-            if (constraints.nextElementTextEquals(7, fqcn)) {
+            if (constraints.nextElementTextEquals(7, searchedFQN) || searchedFQN.isEmpty()) {
                 constraints.getNext(7).ifPresent(matchingElements::add);
             }
         }
@@ -87,5 +120,21 @@ public class FindElements {
         finder.visitFile(file);
 
         return foundElements;
+    }
+
+    public static ArrayList<PsiElement> findObjectAccessesInFile(PsiFile psiFile, String variableName) {
+        final ArrayList<PsiElement> result = new ArrayList<>();
+        TwigLookupUtil.ElementFinder finder = new TwigLookupUtil.ElementFinder(conditionObjectAccess(variableName)) {
+
+            public boolean handleMatch(PsiElement element) {
+                result.add(element);
+                return false;
+            }
+        };
+
+        finder.visitFile(psiFile);
+
+
+        return result;
     }
 }

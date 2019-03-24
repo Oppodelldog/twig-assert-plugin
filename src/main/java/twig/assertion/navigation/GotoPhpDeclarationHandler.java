@@ -6,11 +6,15 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.jetbrains.php.PhpIndex;
+import com.jetbrains.php.lang.psi.elements.PhpClass;
 import com.jetbrains.twig.TwigTokenTypes;
+import com.jetbrains.twig.elements.TwigElementTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import twig.assertion.completion.TwigAssertCompletionProvider;
 import twig.assertion.util.*;
+
+import java.util.Optional;
 
 import static com.jetbrains.twig.TwigTokenTypes.IDENTIFIER;
 
@@ -35,11 +39,40 @@ public class GotoPhpDeclarationHandler implements GotoDeclarationHandler {
             return new PsiElement[]{FindElements.findAssertPsiElement(psiElement.getContainingFile(), psiElement.getText())};
         }
 
-        PhpClassMemberResolver resolver = new PhpClassMemberResolver(psiElement, accessOrigin);
-        resolver.resolve();
-        if (resolver.hasResolvedPsiElement()) {
-            return new PsiElement[]{resolver.getResolvedPsiElement()};
+
+        String variableName = accessOrigin.getNode().getText();
+        if (accessOrigin.getNode().getElementType() == TwigElementTypes.METHOD_CALL) {
+            variableName = accessOrigin.getFirstChild().getText();
         }
+        PsiElement assertElement = FindElements.findAssertPsiElement(accessOrigin.getContainingFile(), variableName);
+        if (assertElement == null) {
+            return new PsiElement[]{};
+        }
+        PsiElementAccessor accessor = new PsiElementAccessor(assertElement);
+        Optional<PsiElement> typeFQCN = accessor.getNext(7);
+        if (!typeFQCN.isPresent()) {
+            return new PsiElement[]{};
+        }
+        String originElementFQCN = TwigFqn.fromTwigString(typeFQCN.get().getText());
+
+        IdentifierFinder catcher = new IdentifierFinder(psiElement);
+        PhpIndex phpIndex = PhpIndex.getInstance(accessOrigin.getProject());
+        Optional<PhpClass> first = phpIndex.getClassesByFQN(originElementFQCN).stream().findFirst();
+        if (!first.isPresent()) {
+            return new PsiElement[]{};
+        }
+
+        PsiElement objectVariableElement = accessOrigin;
+        if (accessOrigin.getNode().getElementType() == TwigElementTypes.METHOD_CALL) {
+            objectVariableElement = accessOrigin.getFirstChild();
+        }
+        TwigPhpIdentifierVisitor visitor = new TwigPhpIdentifierVisitor(first.get(), phpIndex, catcher, objectVariableElement);
+        visitor.visitElement(accessOrigin);
+
+        if (catcher.hasFoundElement()) {
+            return new PsiElement[]{catcher.getFoundElement()};
+        }
+
         return new PsiElement[]{};
     }
 

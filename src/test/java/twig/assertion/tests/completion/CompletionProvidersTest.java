@@ -7,6 +7,7 @@ import twig.assertion.tests.util.FixtureFileReader;
 
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 public class CompletionProvidersTest extends LightCodeInsightFixtureTestCase {
 
@@ -91,7 +92,7 @@ public class CompletionProvidersTest extends LightCodeInsightFixtureTestCase {
         int found = countContainingStrings(expectedSuggestions, suggestions);
 
         if (found != expectedSuggestions.length) {
-            fail(String.format("expected to find [%s] in [%s], but did not", String.join(", ", expectedSuggestions), String.join(", ", suggestions)));
+            fail(String.format("expected to find [%s] in [%s], but did not", String.join(", ", expectedSuggestions), String.join(", ", Objects.requireNonNull(suggestions))));
         }
     }
 
@@ -100,7 +101,7 @@ public class CompletionProvidersTest extends LightCodeInsightFixtureTestCase {
         int found = countContainingStrings(expectedSuggestions, suggestions);
 
         if (found != 0) {
-            fail(String.format("expected not to find [%s] in [%s]", String.join(", ", expectedSuggestions), String.join(", ", suggestions)));
+            fail(String.format("expected not to find [%s] in [%s]", String.join(", ", expectedSuggestions), String.join(", ", Objects.requireNonNull(suggestions))));
         }
     }
 

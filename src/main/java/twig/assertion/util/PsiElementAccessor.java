@@ -2,13 +2,14 @@ package twig.assertion.util;
 
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.tree.IElementType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public class PsiElementAccessor {
     private final PsiElementSelector navigator;
 
-    public PsiElementAccessor(PsiElement element) {
+    public PsiElementAccessor(@NotNull PsiElement element) {
         this.navigator = new PsiElementSelector(element);
     }
 

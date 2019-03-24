@@ -1,19 +1,31 @@
 <idea-plugin>
-    <id>mit.oppodelldog.twigassert</id>
-    <name>This supports twig-assert language extension</name>
+    <id>mit.oppodelldog.twigtypehints</id>
+    <name>This supports twig-typehints language extension</name>
     <version>1.0</version>
     <vendor email="odog@netcologne.de" url="http://www.github.com/Oppodelldog">Oppodelldog</vendor>
 
     <description><![CDATA[
-      Twig language extension twig-assert allows to assert a view variable is of a defined type.<br>
+      Twig language extension twig-typehints allows to hint a twig variables appropriate php type.<br>
       This plugin supports the language extension by the following features:
+      <h4>Autocompletion</h4>
       <ul>
-      <li>PHP Class automcompletion inside assert block</li>
+      <li>PHP Class automcompletion inside typehint block</li>
+      <li>PHP Field/Method automcompletion when using the variable</li>
+      </ul>
+      <h4>Navigation</h4>
+      <ul>
+      <li>Navigate to PHP Class from typehint block</li>
+      <li>Navigate to PHP Field/Method from usages</li>
+      </ul>
+      <h4>Refactoring</h4>
+      <ul>
+      <li>Refactoring of PHP Class Name is applied to the appropriate typehint blocks</li>
+      <li>Refactoring of PHP Field/Method is applied to the appropriate usages</li>
       </ul>
     ]]></description>
 
     <change-notes><![CDATA[
-      Currently there's heave development and proof of concept
+      Currently there's heavy development and proof of concept
     ]]>
     </change-notes>
 

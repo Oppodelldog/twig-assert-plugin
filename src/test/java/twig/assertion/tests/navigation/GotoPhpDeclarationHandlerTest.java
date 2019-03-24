@@ -104,6 +104,10 @@ public class GotoPhpDeclarationHandlerTest extends LightCodeInsightFixtureTestCa
     }
 
     @Test
+    public void testGetGotoDeclarationTargets_NavigatesToFieldDeclaration_6() {
+        assertNavigationSuggestsFqn("\\ChildClass.$childObject", "navigateToField_6.twig");
+    }
+    @Test
     public void testGetGotoDeclarationTargets_NavigatesToVariableDeclaration() {
         assertNavigationSuggestsAssert("myObj", "\\\\TestTarget", "navigateToVariableDeclaration.twig");
     }
